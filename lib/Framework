@@ -1,0 +1,46 @@
+#!/bin/bash
+
+shopt -s expand_aliases
+
+# --- basic alias ---
+alias Quicker.Function.NoArgument='echo >&2 "${FUNCNAME[0]}:" $"No argument specified"'
+alias import='Quicker.Module.Import'
+
+# --- basic function ---
+function Quicker.Module.ImportError() {
+	local modName="$1"; shift
+
+	[[ "$modName"x == ""x ]] && {
+		Quicker.Function.NoArgument
+		return 1
+	}
+
+	Console.f "$modName:" $"Module could not be loaded:" "${@:-(null)}"
+}
+
+function Quicker.Module.Import() {
+	local modName="$1"; shift
+
+	[[ "$modName"x == ""x ]] && {
+		Quicker.Function.NoArgument
+		return 1
+	}
+
+	local modFile="${QUCIEKR['LIBPATH']}/$modName"
+	[[ -e "$modFile" ]] || {
+		Quicker.Module.ImportError "$modName" $"No such file or directory"
+	}
+
+	if [[ -f "$modFile" ]]; then
+		source "$modFile"
+	else
+		Quicker.Module.ImportError "$modName" $"Not a valid module file"
+	fi
+}
+
+function Quicker.Function.Usage() {
+	echo -e $"Usage:" "$@" >&2
+}
+
+Quicker.Module.Import core/Class
+Quicker.Module.Import core/Array

@@ -1,0 +1,175 @@
+#!/bin/bash
+
+Quicker_Class_DefiningClass=""
+Quicker_Class_DefinedClass=""
+THIS=0
+
+function @class() {
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "@class <class-name>"
+		return 1
+	}
+
+	Quicker_Class_DefiningClass="$1"
+	eval "CLASS_${Quicker_Class_DefiningClass}_VARS=''"
+	eval "CLASS_${Quicker_Class_DefiningClass}_FUNCTIONS=''"
+	
+	@method "$Quicker_Class_DefiningClass" # constructor
+	eval "function ${Quicker_Class_DefiningClass}::${Quicker_Class_DefiningClass} { :; }"
+
+	@method "~$Quicker_Class_DefiningClass" # destructor
+	eval "function ${Quicker_Class_DefiningClass}::~${Quicker_Class_DefiningClass} { :; }"
+
+	# common method
+	@method "toString"
+	eval "function ${Quicker_Class_DefiningClass}::toString() { echo \"${Quicker_Class_DefiningClass}@\$THIS\"; }"
+	
+	alias "$Quicker_Class_DefiningClass"="@new $Quicker_Class_DefiningClass"
+}
+
+function @classImplement() {
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "@classImplement <class-name>"
+		return 1
+	}
+
+	Quicker_Class_DefiningClass="$1"
+}
+
+function @end() {
+	Quicker_Class_DefiningClass=""
+	return 0
+}
+
+function @method() {
+	[[ "$Quicker_Class_DefiningClass"x == ""x ]] && {
+		echo "@method:" $"can only use in class"
+		return 1
+	}
+
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "@method <method-name>"
+		return 1
+	}
+
+	local varname="CLASS_${Quicker_Class_DefiningClass}_FUNCTIONS"
+	eval "$varname=\"\${$varname}$1 \""
+}
+
+function @var() {
+	[[ "$Quicker_Class_DefiningClass"x == ""x ]] && {
+		echo "@var:" $"can only use in class"
+		return 1
+	}
+
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "@var <var-name>"
+		return 1
+	}
+
+	local varname="CLASS_${Quicker_Class_DefiningClass}_VARS"
+	eval $varname="\"\${$varname}$1 \""
+}
+
+function @instanceof() {
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "@instanceof <object>"
+		return 1
+	}
+
+	eval "echo \$Quicker_Class_TypeOf_$1"
+}
+
+function @new() {
+	local class="$1"; shift
+	local cvar="$1"; shift
+	
+	[[ "$class"x == ""x || "$cvar"x == ""x ]] && {
+		Quicker.Function.Usage "@new <class> <object> [arguments]"
+		return 1
+	}
+
+	local id="$(cat /proc/sys/kernel/random/uuid | tr -d '-')"
+	id="${id:0:8}"
+
+	eval "Quicker_Class_TypeOf_${id}=$class"
+	eval "$cvar=$id"
+	local funclist
+	
+	eval "funclist=\"\$CLASS_${class}_FUNCTIONS\""
+	
+	for func in $funclist; do
+		eval "${cvar}.${func}() { local t=\$THIS; THIS=$id; local c=\$Quicker_Class_DefinedClass; Quicker_Class_DefinedClass=$class; Quicker.Class._loadVar; Quicker.Class._loadMethod; ${class}::${func} \$@; rt=\$?; Quicker.Class._saveMethod; Quicker.Class._saveVar; Quicker_Class_DefinedClass=\$c; THIS=\$t; return \$rt; }"
+	done
+	${cvar}.${class} $@
+}
+
+function @delete() {
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "@delete <object>"
+		return 1
+	}
+
+	local cvar="$1"; shift
+
+	local class
+	eval "class=$(@instanceof ${!cvar})"
+
+	${cvar}.~${class}
+	unset Quicker_Class_TypeOf_${cvar}
+
+	local funclist
+	eval "funclist=\"\$CLASS_${class}_FUNCTIONS\""
+	
+	for func in $funclist; do
+		unset -f ${cvar}.${func}
+	done
+
+	unset $cvar
+	unalias $class
+}
+
+
+#
+# Internal functions
+#
+function Quicker.Class._loadVar() {
+	eval "varlist=\"\$CLASS_${Quicker_Class_DefinedClass}_VARS\""
+	for var in $varlist; do
+		eval "declare -n this_${var}=\"INSTANCE_${THIS}_${var}\""
+	done
+}
+
+function Quicker.Class._loadMethod() {
+	eval "funclist=\"\$CLASS_${Quicker_Class_DefinedClass}_FUNCTIONS\""
+	for func in $funclist; do
+		[[ "${func}" == "~${Quicker_Class_DefinedClass}" ]] && continue # destructor
+		[[ "${func}" == "${Quicker_Class_DefinedClass}" ]] && continue # constructor
+
+		eval "function ${func}() { ${Quicker_Class_DefinedClass}::${func} \$@; return \$?; }"
+		alias "this_${func}"="${func}"
+	done
+}
+
+
+function Quicker.Class._saveMethod() {
+	eval "funclist=\"\$CLASS_${Quicker_Class_DefinedClass}_FUNCTIONS\""
+	for func in $funclist; do
+		[[ "${func}" == "~${Quicker_Class_DefinedClass}" ]] && continue # destructor
+		[[ "${func}" == "${Quicker_Class_DefinedClass}" ]] && continue # constructor
+
+		eval "unset ${func}"
+		unalias "this_${func}"
+	done
+}
+
+
+function Quicker.Class._saveVar() {
+	eval "varlist=\"\$CLASS_${Quicker_Class_DefinedClass}_VARS\""
+	for var in $varlist; do
+		eval "INSTANCE_${THIS}_$var=\"this_\$$var\""
+		eval "unset this_$var"
+	done
+}
+
+

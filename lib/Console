@@ -1,0 +1,70 @@
+#!/bin/bash
+
+Console_Level_I=$"I"
+Console_Level_W=$"W"
+Console_Level_E=$"E"
+Console_Level_F=$"F"
+Console_Level_D=$"D"
+Console_Level_V=$"V"
+
+function Console.Color.Black() {
+	echo -ne "\033[1;37m"
+}
+
+function Console.Color.Red() {
+	echo -ne "\033[1;31m"
+}
+
+function Console.Color.Green() {
+	echo -ne "\033[1;32m"
+}
+
+function Console.Color.Yellow() {
+	echo -ne "\033[1;33m"
+}
+
+function Console.Color.Blue() {
+	echo -ne "\033[1;34m"
+}
+
+function Console.Color.Purple() {
+	echo -ne "\033[1;35m"
+}
+
+function Console.Color.Cyan() {
+	echo -ne "\033[1;36m"
+}
+
+function Console.Color.White() {
+	echo -ne "\033[1;37m"
+}
+
+function Console.Color.No() {
+	echo -ne "\033[0m"
+}
+
+
+function Console.i() {
+	echo -e " [$Console_Level_I] $@"
+}
+
+function Console.w() {
+	echo -e "$(Console.Color.Yellow) [$Console_Level_W] $@ $(Console.Color.No)"
+}
+
+function Console.e() {
+	echo -e "$(Console.Color.Red) [$Console_Level_E] $@ $(Console.Color.No)"
+}
+
+function Console.f() {
+	echo -e "$(Console.Color.Red) [$Console_Level_F] $@ $(Console.Color.No)"
+	exit 1
+}
+
+function Console.d() {
+	echo -e "$(Console.Color.Black) [$Console_Level_D] $@ $(Console.Color.No)"
+}
+
+function Console.v() {
+	echo -e "$(Console.Color.Cyan) [$Console_Level_V] $@ $(Console.Color.No)"
+}

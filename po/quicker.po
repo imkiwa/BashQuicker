@@ -1,0 +1,53 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Bash Quicker Framework 0.1\n"
+"Report-Msgid-Bugs-To: Kiva <2753286839@qq.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Quicker init failed"
+msgstr "Quicker 初始化失败"
+
+msgid "No such file or directory"
+msgstr "没有那个文件或目录"
+
+msgid "No argument specified"
+msgstr "没有指定参数"
+
+msgid "Module could not be loaded:"
+msgstr "模块无法加载:"
+
+msgid "Could not load init module"
+msgstr "无法加载初始化模块"
+
+msgid "Not a valid module file"
+msgstr "不是正确的模块文件"
+
+msgid "can only use in class"
+msgstr "只能在类中使用"
+
+msgid "Usage:"
+msgstr "用法:"
+
+msgid "I"
+msgstr "信息"
+
+msgid "W"
+msgstr "警告"
+
+msgid "E"
+msgstr "错误"
+
+msgid "F"
+msgstr "致命"
+
+msgid "D"
+msgstr "调试"
+
+msgid "V"
+msgstr "详细"
+

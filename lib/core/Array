@@ -1,0 +1,73 @@
+#!/bin/bash
+
+function Array.reverse() {
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "Array.reverse <array-name>"
+		return 1
+	}
+
+	local -a R
+	local -i i
+	local rlen temp
+
+	eval R=\( \"\$\{$1\[@\]\}\" \)
+
+	rlen=${#R[@]}
+	for ((i=0; i < rlen/2; i++ ))
+	do
+		temp="${R[i]}"
+		R[i]="${R[rlen-i-1]}"
+		R[rlen-i-1]="$temp"
+	done
+
+	eval $1=\( \"\$\{R\[@\]\}\" \)
+}
+
+
+function Array.shift() {
+	local -a R
+	local n
+
+	case $# in
+		1) n=1 ;;
+		2) n=$2 ;;
+		*)
+			Quicker.Function.Usage "$FUNCNAME <array-name> [count]"
+			return 1;;
+	esac
+
+	eval R=\( \"\$\{$1\[@\]\}\" \)
+
+	R=( "${R[@]:$n}" )
+	eval $1=\( \"\$\{R\[@\]\}\" \)
+}
+
+
+
+function Array.sort() {
+	[[ "$1"x == ""x ]] && {
+		Quicker.Function.Usage "$FUNCNAME [no-same] <array-name>"
+		return 1
+	}
+
+	local -a R
+	local u
+
+	case "$1" in
+		true) u=-u; shift ;;
+	esac
+
+	if [[ $# -eq 0 ]]; then
+		Quicker.Function.NoArgument
+		return 1
+	fi
+
+	eval R=\( \"\$\{$1\[@\]\}\" \)
+
+	R=( $( printf "%s\n" "${A[@]}" | sort $u) )
+
+	eval $1=\( \"\$\{R\[@\]\}\" \)
+	return 0
+}
+
+

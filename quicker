@@ -1,0 +1,40 @@
+#!/bin/bash
+
+declare -Ag QUCIEKR
+
+QUCIEKR['ROOT']="$(readlink -f ${BASH_SOURCE[0]%/*})"
+QUCIEKR['LIBPATH']="${QUCIEKR['ROOT']}/lib"
+QUCIEKR['LOCALEPATH']="${QUCIEKR['ROOT']}/locale"
+
+TEXTDOMAIN='libc'
+TEXTDOMAINDIR='/usr/share/locale'
+
+[ -d "${QUCIEKR['ROOT']}" ] || {
+	echo >&2 "${QUCIEKR['ROOT']}:" $"No such file or directory"
+	exit 1
+}
+
+[ -d "${QUCIEKR['LIBPATH']}" ] || {
+	echo >&2 "${QUCIEKR['LIBPATH']}:" $"No such file or directory"
+	exit 1
+}
+
+[ -d "${QUCIEKR['LOCALEPATH']}" ] || {
+	echo >&2 "${QUCIEKR['LOCALEPATH']}:" $"No such file or directory"
+	exit 1
+}
+
+TEXTDOMAIN='quicker'
+TEXTDOMAINDIR="${QUCIEKR['LOCALEPATH']}"
+
+source "${QUCIEKR['LIBPATH']}/Console" 2>/dev/null || {
+	echo >&2 $"Could not load init module"
+	exit 1
+}
+
+source "${QUCIEKR['LIBPATH']}/Framework" 2>/dev/null || {
+	echo >&2 $"Could not load init module"
+	exit 1
+}
+
+
