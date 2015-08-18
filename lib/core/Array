@@ -2,7 +2,7 @@
 
 function Array.reverse() {
 	[[ "$1"x == ""x ]] && {
-		Quicker.Function.Usage "Array.reverse <array-name>"
+		Quicker.Function.Usage "$FUNCNAME <array-name>"
 		return 1
 	}
 
@@ -45,7 +45,7 @@ function Array.shift() {
 
 
 function Array.sort() {
-	[[ "$1"x == ""x ]] && {
+	[[ $# -eq 0 ]] && {
 		Quicker.Function.Usage "$FUNCNAME [no-same] <array-name>"
 		return 1
 	}
@@ -56,11 +56,6 @@ function Array.sort() {
 	case "$1" in
 		true) u=-u; shift ;;
 	esac
-
-	if [[ $# -eq 0 ]]; then
-		Quicker.Function.NoArgument
-		return 1
-	fi
 
 	eval R=\( \"\$\{$1\[@\]\}\" \)
 

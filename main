@@ -1,4 +1,7 @@
 #!/bin/bash
 
+# import the libraries
 . quicker
+
+# write yuor code here!
 
