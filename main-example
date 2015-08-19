@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# import the libraries
+. $(dirname $(readlink -f ${BASH_SOURCE[0]}))/quicker
+
+# write yuor code here!
+

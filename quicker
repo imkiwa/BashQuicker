@@ -2,7 +2,7 @@
 
 declare -Ag QUCIEKR
 
-QUCIEKR['ROOT']="$(readlink -f ${BASH_SOURCE[0]%/*})"
+QUCIEKR['ROOT']="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
 QUCIEKR['LIBPATH']="${QUCIEKR['ROOT']}/lib"
 QUCIEKR['LOCALEPATH']="${QUCIEKR['ROOT']}/locale"
 

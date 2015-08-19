@@ -44,3 +44,4 @@ function Quicker.Function.Usage() {
 
 Quicker.Module.Import core/Class
 Quicker.Module.Import core/Array
+Quicker.Module.Import core/Type

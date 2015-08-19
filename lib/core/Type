@@ -1,0 +1,8 @@
+#!/bin/bash
+
+alias Type.HashMap='declare -A'
+alias Type.Integer='declare -i'
+alias Type.Array='declare -a'
+alias Type.Const='declare -r'
+alias Type.Reference='declare -n'
+

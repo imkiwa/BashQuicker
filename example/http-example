@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# import the libraries
+. $(dirname $(readlink -f ${BASH_SOURCE[0]}))/../quicker
+
+# write yuor code here!
+import net/Http
+
+Type.HashMap map result
+map['host']='www.baidu.com'
+map['path']='/'
+map['port']=80
+# map['Content-Type']='text/html'
+# map['Accept-Type']='gzip'
+# map['Cookies']='xxx'
+
+Http.get map result
+
+Console.v "Header:"
+echo "{"
+for key in ${!result[@]}; do
+	if [[ "$key" == "body" ]]; then
+		continue
+	fi
+	echo -e "\t\"$key\": \"${result[$key]}\""
+done
+echo "}"
+
+echo
+Console.v "body:"
+echo -e "${result['body']}"
+
+

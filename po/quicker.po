@@ -30,6 +30,9 @@ msgstr "不是正确的模块文件"
 msgid "can only use in class"
 msgstr "只能在类中使用"
 
+msgid "Invalid arguments"
+msgstr "非法的参数"
+
 msgid "Usage:"
 msgstr "用法:"
 

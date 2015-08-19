@@ -1,0 +1,105 @@
+#!/bin/bash
+
+##
+## HashMap data result
+## data['path']='/'
+## data['host']='www.baidu.com'
+## data['port']=80
+## Http.get data result
+## echo ${result['status']}
+## echo ${result['Content-Type']}
+## echo ${result['Content-Length']}
+## echo ${result['body']}
+##
+function Http.get() {
+	[[ "$#" != 2 ]] && {
+		Quicker.Function.Usage "$FUNCNAME <data-hash> <result-hash>"
+		return 1
+	}
+
+	Type.Reference dataRef="$1"; shift
+	Type.Reference resultRef="$1"; shift
+	Type.Integer fd=$(Http._findFreeFd)
+	Type.HashMap getData
+
+	local host=''
+	local path='/'
+	local port=80
+
+
+	local key value
+	for key in ${!dataRef[@]}; do
+		value="${dataRef[$key]}"
+		if [[ "$key" == 'host' ]]; then
+			host="$value"
+		elif [[ "$key" == 'port' ]]; then
+			port="$value"
+		elif [[ "$key" == 'path' ]]; then
+			path="$value"
+		else
+			getData[$key]="$value"
+		fi
+	done
+
+	[[ "$host"x == ""x || "$port"x == ""x || "$path"x == ""x || "${port//[0-9]/}" != "" || "$port" -gt 65536 ]] && {
+		echo "$FUNCNAME:" $"Invalid arguments"
+		return 1
+	}
+
+	local getStr="GET ${path} HTTP/1.0\r\n"
+
+	for key in ${!getData[@]}; do
+		value="${getData[$key]}"
+		getStr+="\"$key\": \"$value\"\r\n"
+	done
+
+	local devFile="/dev/tcp/$host/$port"
+	eval "exec $fd<>\"$devFile\" || {
+		return 1
+	}"
+
+	echo -e "$getStr" >&$fd
+
+	local l tmp tmp2 bodyStr
+	local isStatusLine=true isNextBody=false
+	while read -u "$fd" l; do
+		l="$(echo -e $l | tr -d '\n' | tr -d '\r')"
+
+		if [[ "$isNextBody" == true ]]; then
+			bodyStr+="$l\n"
+			continue
+		fi
+
+		if [[ "$l" == "" ]]; then
+			isNextBody=true
+			continue
+		fi
+
+		if [[ "$isStatusLine" == true ]]; then
+			tmp="$(echo $l | cut -d' ' -f2)"
+			resultRef['status']="$tmp"
+			isStatusLine=false
+		else
+			tmp="$(echo $l | awk -F": " '{print $1}')"
+			tmp2="$(echo $l | awk -F": " '{print $2}')"
+			resultRef[$tmp]="$tmp2"
+		fi
+	done
+
+	resultRef['body']="$bodyStr"
+
+	eval "exec &$fd<&-"
+	eval "exec &$fd>&-"
+}
+
+
+
+function Http._findFreeFd() {
+	local -i fd=20
+	while [[ -e "/proc/self/fd/$fd" ]]; do
+		let fd++
+	done
+
+	echo "$fd"
+}
+
